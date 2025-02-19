@@ -1,7 +1,13 @@
-Bot Created Via [NFD](https://github.com/LloydAsp/nfd)
+中文：
+嗨! 😍🎉欢迎来访😄
+我是自动回复机器人 🤖，消息由我自动发送。
 
-使用方法：
+📌 有时不在线，有事请留言
+💬 直接在下方发送信息（或发送媒体），我看到会回复！
 
-- 当其他用户给bot发消息，会被转发到bot创建者
-- 用户回复普通文字给转发的消息时，会回复到原消息发送者
-- 用户回复 `/block` ,  `/unblock` ,  `/checkblock` 等命令会执行相关指令， **不会** 回复到原消息发送者
+English:
+Hi! 😍🎉 Welcome! 😄
+I’m an auto-reply bot 🤖, 和 this message is sent automatically.
+
+📌 Sometimes I’m not online, leave a message if needed.
+💬 Just send me a message (or media) below, 和 I’ll reply when I see it!
