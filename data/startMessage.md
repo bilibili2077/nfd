@@ -1,28 +1,12 @@
 🎉 你好呀，用户名为：@{{username}} 🤗 你的🆔是：  
-<input 
-  type="text" 
-  value="{{user_id}}" 
-  readonly 
-  style="
-    border: none; 
-    background: transparent; 
-    cursor: pointer; 
-    font-family: inherit; 
-    font-size: inherit; 
-    color: inherit;
-    padding: 0;
-    margin: 0;
-    outline: none;
-    display: inline-block;
-    width: auto;
-  "
-  onclick="this.select(); document.execCommand('copy'); alert('ID 已复制: ' + this.value);"
->  
+`{{user_id}}`  
 
 我是[蒂法酱](https://img.110014.xyz/file/1740750110036_tifa.jpg)的🤖私聊消息转发助手，您的每一条信息，我都会确保快速🚀且准确地送达。  
 
 🌈 如何使用我：  
 - 将您想发送的消息💌（文字💬、图片🖼或其他内容）直接发送给我。  
 - 您的信息将严格保密，并会立刻提交给蒂法酱。  
+
+💡 提示：点击 `{{user_id}}` 并选择“复制”即可复制您的 ID。  
 
 如果有任何问题或需要帮助，随时告诉我哦！👇  
