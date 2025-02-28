@@ -86,9 +86,9 @@ async function onCallbackQuery(callbackQuery) {
         caption = `✅ 已屏蔽用户 \`${userId}\`\n操作时间：${formatAdminTime()}`;
         break;
       case 'view_profile':
-        return handleUserInfo(message， userId);
+        return handleUserInfo(message, userId);
       case 'confirm_unblock':
-        await lBot。delete('isblocked-' + userId);
+        await lBot.delete('isblocked-' + userId);
         caption = `✅ 已解除屏蔽用户 \`${userId}\``;
         break;
       case 'cancel_block':
@@ -96,76 +96,76 @@ async function onCallbackQuery(callbackQuery) {
       case 'cancel_add_fraud':
       case 'cancel_remove_fraud':
         caption = "❌ 操作已取消";
-        await requestTelegram('editMessageCaption'， makeReqBody({ chat_id: chatId， message_id: messageId， caption， parse_mode: 'Markdown'， reply_markup: { inline_keyboard: [] } }));
+        await requestTelegram('editMessageCaption', makeReqBody({ chat_id: chatId, message_id: messageId, caption, parse_mode: 'Markdown', reply_markup: { inline_keyboard: [] } }));
         break;
       case 'confirm_add_fraud':
         await performAddFraud(userId);
         caption = `✅ 已添加欺诈用户 ${userId}\n操作时间：${formatAdminTime()}`;
         break;
       case 'confirm_remove_fraud':
-        await lBot。delete(LOCAL_FRAUD_PREFIX + userId);
+        await lBot.delete(LOCAL_FRAUD_PREFIX + userId);
         caption = `✅ 已移除欺诈用户 ${userId}`;
         break;
-      默认:
+      default:
         caption = "❌ 未知操作";
     }
-    await requestTelegram('editMessageCaption'， makeReqBody({ chat_id: chatId， message_id: messageId， caption， parse_mode: 'Markdown' }));
+    await requestTelegram('editMessageCaption', makeReqBody({ chat_id: chatId, message_id: messageId, caption, parse_mode: 'Markdown' }));
   } catch (error) {
-    await requestTelegram('editMessageCaption'， makeReqBody({ chat_id: chatId， message_id: messageId， caption: `❌ 操作失败：${error。message}`， parse_mode: 'Markdown' }));
+    await requestTelegram('editMessageCaption', makeReqBody({ chat_id: chatId, message_id: messageId, caption: `❌ 操作失败：${error.message}`, parse_mode: 'Markdown' }));
   }
-  return requestTelegram('answerCallbackQuery'， makeReqBody({ callback_query_id: id }));
+  return requestTelegram('answerCallbackQuery', makeReqBody({ callback_query_id: id }));
 }
 
 async function performBlock(userId) {
-  if (await lBot。get(`isblocked-${userId}`)) throw new 错误('该用户已被屏蔽');
-  const [targetUser， operatorInfo] = await Promise。all([getChat(userId)， getChat(ADMIN_UID)]);
+  if (await lBot.get(`isblocked-${userId}`)) throw new Error('该用户已被屏蔽');
+  const [targetUser, operatorInfo] = await Promise.all([getChat(userId), getChat(ADMIN_UID)]);
   const storeData = {
-    target: { id: userId， name: [targetUser。result。last_name， targetUser。result。first_name]。filter(Boolean)。join(' ') || '未知'， username: targetUser。result。username || '无' }，
-    operator: { name: [operatorInfo。result。last_name， operatorInfo。result。first_name]。filter(Boolean)。join(' ') || '系统管理员'， username: operatorInfo。result。username || '无' }，
-    timestamp: Date。当前()
+    target: { id: userId, name: [targetUser.result.last_name, targetUser.result.first_name].filter(Boolean).join(' ') || '未知', username: targetUser.result.username || '无' },
+    operator: { name: [operatorInfo.result.last_name, operatorInfo.result.first_name].filter(Boolean).join(' ') || '系统管理员', username: operatorInfo.result.username || '无' },
+    timestamp: Date.now()
   };
-  await lBot。put(`isblocked-${userId}`， JSON。stringify(storeData));
+  await lBot.put(`isblocked-${userId}`, JSON.stringify(storeData));
 }
 
 async function performAddFraud(userId) {
-  const [targetUser， operatorInfo] = await Promise。all([getChat(userId)， getChat(ADMIN_UID)]);
+  const [targetUser, operatorInfo] = await Promise.all([getChat(userId), getChat(ADMIN_UID)]);
   const storeData = {
-    target: { id: userId， name: [targetUser。result。last_name， targetUser。result。first_name]。filter(Boolean)。join(' ') || '未知'， username: targetUser。result。username || '无' }，
-    operator: { name: [operatorInfo。result。last_name， operatorInfo。result。first_name]。filter(Boolean)。join(' ') || '系统管理员'， username: operatorInfo。result。username || '无' }，
-    timestamp: Date。当前()
+    target: { id: userId, name: [targetUser.result.last_name, targetUser.result.first_name].filter(Boolean).join(' ') || '未知', username: targetUser.result.username || '无' },
+    operator: { name: [operatorInfo.result.last_name, operatorInfo.result.first_name].filter(Boolean).join(' ') || '系统管理员', username: operatorInfo.result.username || '无' },
+    timestamp: Date.now()
   };
-  await lBot。put(LOCAL_FRAUD_PREFIX + userId， JSON。stringify(storeData));
+  await lBot.put(LOCAL_FRAUD_PREFIX + userId, JSON.stringify(storeData));
 }
 
 async function onMessage(message) {
-  const { chat， text， from， reply_to_message } = message;
-  const chatId = chat。id。toString();
+  const { chat, text, from, reply_to_message } = message;
+  const chatId = chat.id.toString();
 
   if (text?.startsWith('/') && text !== '/start') {
     if (chatId !== ADMIN_UID) {
-      const { result } = await sendMessage({ chat_id: chatId， text: '⛔ 该指令仅主人可用' });
-      setTimeout(() => deleteMessage({ chat_id: result。chat。id， message_id: result。message_id })， 480);
+      const { result } = await sendMessage({ chat_id: chatId, text: '⛔ 该指令仅主人可用' });
+      setTimeout(() => deleteMessage({ chat_id: result.chat.id, message_id: result.message_id }), 480);
       return;
     }
   }
 
   if (text === '/start') {
-    const userId = from。id;
-    const username = from。username || [from。last_name， from。first_name]。filter(Boolean)。join(' ') || '未知用户';
-    let startMsg = await fetch(startMsgUrl)。then(r => r。text());
-    startMsg = startMsg。replace('{{username}}'， username)。replace('{{user_id}}'， userId);
+    const userId = from.id;
+    const username = from.username || [from.last_name, from.first_name].filter(Boolean).join(' ') || '未知用户';
+    let startMsg = await fetch(startMsgUrl).then(r => r.text());
+    startMsg = startMsg.replace('{{username}}', username).replace('{{user_id}}', userId);
     return sendMessage({
-      chat_id: chatId，
-      text: startMsg，
-      parse_mode: 'Markdown'，
-      reply_markup: { inline_keyboard: [[{ text: '皮卡丘的Alist站点'， url: 'https://pan.110014.xyz' }]] }
+      chat_id: chatId,
+      text: startMsg,
+      parse_mode: 'Markdown',
+      reply_markup: { inline_keyboard: [[{ text: '皮卡丘的Alist站点', url: 'https://pan.110014.xyz' }]] }
     });
   }
 
   if (chatId === ADMIN_UID) {
     const commands = {
-      '/blocklist': handleBlockList，
-      '/localfraudlist': handleLocalFraudList，
+      '/blocklist': handleBlockList,
+      '/localfraudlist': handleLocalFraudList,
       '/help': handleHelpCommand，
       '/status': handleStatusCommand，
       '/block': handleBlock，
@@ -173,43 +173,43 @@ async function onMessage(message) {
       '/checkblock': checkBlock
     };
     if (commands[text]) return commands[text](message);
-    if (/^\/fraud(_add)?(?:\s+(\d+))?$/.test(text)) return handleFraud(message, text.split(' ')[1]);
-    if (/^\/unfraud(_remove)?(?:\s+(\d+))?$/.test(text)) return handleUnFraud(message, text.split(' ')[1]);
-    if (/^\/userinfo\s+\d+$/.test(text)) return handleUserInfo(message, text.split(' ')[1]);
-    if (/^\/unblockid\s+\d+$/.test(text)) return handleUnBlockById(message, text.split(' ')[1]);
+    if (/^\/fraud(_add)?(?:\s+(\d+))?$/。test(text)) return handleFraud(message， text。split(' ')[1]);
+    if (/^\/unfraud(_remove)?(?:\s+(\d+))?$/。test(text)) return handleUnFraud(message， text。split(' ')[1]);
+    if (/^\/userinfo\s+\d+$/。test(text)) return handleUserInfo(message， text。split(' ')[1]);
+    if (/^\/unblockid\s+\d+$/。test(text)) return handleUnBlockById(message， text。split(' ')[1]);
 
-    const guestChatId = await lBot.get('msg-map-' + reply_to_message?.message_id, { type: 'json' });
-    if (guestChatId) return copyMessage({ chat_id: guestChatId, from_chat_id: chatId, message_id: message.message_id });
+    const guestChatId = await lBot。get('msg-map-' + reply_to_message?.message_id， { type: 'json' });
+    if (guestChatId) return copyMessage({ chat_id: guestChatId， from_chat_id: chatId， message_id: message。message_id });
   }
   return handleGuestMessage(message);
 }
 
 async function handleHelpCommand(message) {
   try {
-    const [template, blockedCount, fraudCount] = await Promise.all([fetch(helpTemplateUrl).then(r => r.text()), getLocalBlockedCount(), getLocalFraudCount()]);
-    const finalText = template.replace('{{botName}}', '蒂法酱').replace('{{blockedCount}}', blockedCount).replace('{{fraudCount}}', fraudCount).replace('{{updateTime}}', formatAdminTime());
-    return sendMessage({ chat_id: ADMIN_UID, text: finalText, parse_mode: 'Markdown', disable_web_page_preview: true });
+    const [template， blockedCount， fraudCount] = await Promise。all([fetch(helpTemplateUrl)。then(r => r。text())， getLocalBlockedCount()， getLocalFraudCount()]);
+    const finalText = template。replace('{{botName}}'， '蒂法酱')。replace('{{blockedCount}}'， blockedCount)。replace('{{fraudCount}}'， fraudCount)。replace('{{updateTime}}'， formatAdminTime());
+    return sendMessage({ chat_id: ADMIN_UID， text: finalText， parse_mode: 'Markdown'， disable_web_page_preview: true });
   } catch (error) {
-    return sendError(ADMIN_UID, `帮助菜单加载失败：${error.message}`);
+    return sendError(ADMIN_UID， `帮助菜单加载失败：${error。message}`);
   }
 }
 
 async function handleStatusCommand(message) {
   try {
-    const [blockedCount, fraudCount] = await Promise.all([getLocalBlockedCount(), getLocalFraudCount()]);
+    const [blockedCount， fraudCount] = await Promise。all([getLocalBlockedCount()， getLocalFraudCount()]);
     const statusText = `🤖 *机器人状态监控*\n\n🛡️ 本地屏蔽访客：${blockedCount} 人\n🚨 欺诈访客记录：${fraudCount} 人\n🔄 最后更新：${formatAdminTime()}`;
-    return sendMessage({ chat_id: ADMIN_UID, text: statusText, parse_mode: 'Markdown' });
+    return sendMessage({ chat_id: ADMIN_UID， text: statusText， parse_mode: 'Markdown' });
   } catch (error) {
-    return sendError(ADMIN_UID, `状态获取失败：${error.message}`);
+    return sendError(ADMIN_UID， `状态获取失败：${error。message}`);
   }
 }
 
 async function getLocalCount(prefix) {
-  let count = 0, cursor = null;
+  let count = 0， cursor = null;
   do {
-    const list = await lBot.list({ prefix, cursor });
-    count += list.keys.length;
-    cursor = list.list_complete ? null : list.cursor;
+    const list = await lBot。list({ prefix， cursor });
+    count += list。keys。length;
+    cursor = list。list_complete ? null : list。cursor;
   } while (cursor);
   return count;
 }
@@ -218,26 +218,26 @@ const getLocalBlockedCount = () => getLocalCount('isblocked-');
 const getLocalFraudCount = () => getLocalCount(LOCAL_FRAUD_PREFIX);
 
 async function loadListData(prefix) {
-  const users = [];
+  const 用户 = [];
   let cursor = null;
   do {
-    const list = await lBot.list({ prefix, cursor });
-    for (const key of list.keys) {
-      const rawData = await lBot.get(key.name, { type: 'json' });
-      if (rawData) users.push({ id: key.name.replace(prefix, ''), ...rawData });
+    const list = await lBot。list({ prefix， cursor });
+    for (const key of list。keys) {
+      const rawData = await lBot。get(key。name， { type: 'json' });
+      if (rawData) 用户。push({ id: key。name。replace(prefix， ''), ...rawData });
     }
-    cursor = list.list_complete ? null : list.cursor;
+    cursor = list。list_complete ? null : list。cursor;
   } while (cursor);
-  return users;
+  return 用户;
 }
 
 function formatAdminTime(date = new Date()) {
-  return date.toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).replace(/\//g, '-');
+  return date。toLocaleString('zh-CN'， { year: 'numeric'， month: '2-digit'， day: '2-digit'， hour: '2-digit'， minute: '2-digit'， second: '2-digit'， hour12: false })。replace(/\//g， '-');
 }
 
 async function isFraud(id) {
-  const db = await fetch(fraudDb).then(r => r.text());
-  return db.split('\n').filter(v => v).includes(id.toString());
+  const db = await fetch(fraudDb)。then(r => r。text());
+  return db。split('\n')。filter(v => v)。includes(id。toString());
 }
 
 async function isLocalFraud(id) {
@@ -322,9 +322,9 @@ async function handleFraud(message， userId) {
   const chatRes = await getChat(guestChatId);
   if (!chatRes。ok) return sendError(ADMIN_UID， `访客不存在：${chatRes。description}`);
   return sendMessage({
-    chat_id: ADMIN_UID，
-    text: `⚠️ 添加欺诈用户确认\n\n即将添加用户：${guestChatId}`，
-    parse_mode: 'Markdown'，
+    chat_id: ADMIN_UID,
+    text: `⚠️ 添加欺诈用户确认\n\n即将添加用户：${guestChatId}`,
+    parse_mode: 'Markdown',
     reply_markup: getConfirmKeyboard('add_fraud'， guestChatId， { text: "👤 查看资料"， callback_data: `view_profile:${guestChatId}` })
   });
 }
